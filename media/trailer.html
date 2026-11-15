@@ -92,14 +92,14 @@ html,body{height:100%;margin:0;background:#000;color:#fff;overflow:hidden;font-f
   <div class="cr"><small>Звук</small><b>ОТВЕЧАЕТ НА КНОПКУ ЗВУКА</b></div></div>
 
  <div class="sc" data-t="36.4" data-bg="--x:-10%;--y:0%;--s:1.5;--r:-4deg;--h:170deg;--t:#1fa7a6">
-  <div class="t" style="font-size:clamp(24px,7.5vw,72px)">МАГАЗИН ТЕМ</div>
-  <div class="s" style="font-size:clamp(20px,6vw,48px)"><span class="coin"></span>5 монет</div>
-  <div class="cr"><small>Где взять</small><b>ВКЛАДКА «МАГАЗИН»</b></div></div>
+  <div class="t" style="font-size:clamp(24px,7.5vw,72px)">ТЕМЫ</div>
+  <div class="s" style="font-size:clamp(20px,6vw,48px)">Тематические оформления</div>
+  <div class="cr"><small>Где найти</small><b>ВКЛАДКА «ТЕМЫ»</b></div></div>
 
  <div class="sc" data-t="40.7" data-bg="--x:0%;--y:-2%;--s:1.2;--r:0deg;--h:90deg;--br:.45;--t:#103d2b">
-  <div class="btn g" style="font-size:clamp(18px,5vw,40px)"><span class="coin"></span>Купить за 5</div>
-  <div class="s">и применить в настройках обоев</div>
-  <div class="cr"><small>Готово</small><b>ТЕМА ТВОЯ</b></div></div>
+  <div class="btn g" style="font-size:clamp(18px,5vw,40px)">Применить</div>
+  <div class="s">во вкладке «Темы» в настройках</div>
+  <div class="cr"><small>Готово</small><b>ТЕМА ВКЛЮЧЕНА</b></div></div>
 
  <div class="sc" data-t="45.0" data-bg="--x:2%;--y:4%;--s:1.9;--r:3deg;--h:15deg;--sat:1.8;--t:#e0701c">
   <div class="t" style="font-size:clamp(40px,13vw,140px)">МАЙНКРАФТ</div><div class="s" style="color:#fff">тема для приложения</div></div>
@@ -579,7 +579,10 @@ frame();
 })();
 </script><script>
 (function(){
-function close(){try{parent.postMessage('pmk-trailer-close','*')}catch(e){}}
+var au0=document.getElementById('au');
+function done(){try{parent.postMessage('pmk-trailer-done','*')}catch(e){}}
+if(au0)au0.addEventListener('ended',done);
+function close(){if(au0&&au0.currentTime>=40)done();try{parent.postMessage('pmk-trailer-close','*')}catch(e){}}
 ['rec','x'].forEach(function(id){var b=document.getElementById(id);if(b)b.addEventListener('click',function(e){e.stopPropagation();close()})});
 var m=document.getElementById('recmsg');
 window.addEventListener('load',function(){setTimeout(function(){if(!window.THREE&&m)m.textContent='Для трейлера нужен интернет (грузится 3D-графика). Закрой и попробуй позже.'},400)});

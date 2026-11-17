@@ -1,5 +1,5 @@
 {
-  "mode": "test",
+  "mode": "release",
   "publish_release": true,
   "auto_update": true,
   "ota_update": false

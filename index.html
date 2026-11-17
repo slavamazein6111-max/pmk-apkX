@@ -56,7 +56,6 @@ html.mc .d-i{display:none}
 /* ===== Заставка Майнкрафта: «Generating world» (как в игре) ===== */
 .splash.mcs{background-color:#231c17;image-rendering:pixelated;transition:opacity .45s linear}
 .splash.mcs.out{opacity:0}
-.splash.slav{background:#000;transition:opacity .5s linear}.splash.slav.out{opacity:0}.splash.slav canvas{position:absolute;left:0;top:0;width:100%;height:100%}
 .mcs canvas{position:absolute;left:50%;transform:translateX(-50%);image-rendering:pixelated;opacity:0}
 .mcs.rdy canvas,.mcs.rdy .mc-bar{opacity:1}
 .mcs .mc-bar{position:absolute;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.55);opacity:0}
@@ -341,7 +340,7 @@ let set={on:false,main:'',mainName:'',lead:5,eve:true,eveT:'20:00',morn:true,mor
 try{set={...set,...JSON.parse(localStorage.getItem('pmk-set')||'{}')}}catch(e){}
 set.pred=false;
 document.addEventListener('visibilitychange',()=>document.documentElement.classList.toggle('hid',document.hidden));
-const APP_VERSION='0.5.2';const APP_CHANNEL='release';const APP_OTA='0';const BETA_LABEL=APP_CHANNEL==='test'?'test':'beta';document.querySelectorAll('.beta').forEach(e=>{e.textContent=BETA_LABEL});const UI_VERSION='0.5.7';
+const APP_VERSION='0.5.2';const APP_CHANNEL='release';const APP_OTA='0';const BETA_LABEL=APP_CHANNEL==='test'?'test':'beta';document.querySelectorAll('.beta').forEach(e=>{e.textContent=BETA_LABEL});const UI_VERSION='0.5.9';
 const TG_URL='https://t.me/slvdevvv';
 const hx=h=>{h=h.replace('#','');if(h.length==3)h=[...h].map(c=>c+c).join('');return[0,2,4].map(i=>parseInt(h.slice(i,i+2),16))};
 const mix=(a,b,t)=>{const A=hx(a),B=hx(b);return'#'+A.map((v,i)=>Math.round(v+(B[i]-v)*t).toString(16).padStart(2,'0')).join('')};
@@ -367,9 +366,9 @@ const MC_IMG='data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBAUEBAY
 const SHOP=[
 {id:'minecraft',name:'Майнкрафт',sub:'Небо, трава и квадратные блоки',img:MC_IMG,prev:'linear-gradient(180deg,rgba(0,0,0,0) 45%,rgba(0,0,0,.6) 100%),url('+MC_IMG+') center/cover no-repeat',w:{id:'minecraft',name:'Майнкрафт',...P('#3a9ef5','#c6c6c6','#ffffff','#e3f3ff','#8b8b8b','#5cb335','rgba(92,179,53,.3)','#ffd84a','#ffffff','#1a1200',1)}}
 ];
-/* Темы: тематические оформления (Майнкрафт и др.). Пока раздел «в разработке»; выдаётся/забирается в режиме разработчика. Хранится в pmk-shop */
+/* Темы: тематические оформления (Майнкрафт и др.). По умолчанию доступны; в режиме разработчика можно забрать/выдать (тогда раздел «в разработке»). Хранится в pmk-shop */
 let themesOn=false;
-try{themesOn=localStorage.getItem('pmk-shop')==='1';['pmk-shop-own','pmk-coins','pmk-promo'].forEach(k=>localStorage.removeItem(k))}catch(e){}
+try{themesOn=localStorage.getItem('pmk-shop')!=='0';['pmk-shop-own','pmk-coins','pmk-promo'].forEach(k=>localStorage.removeItem(k))}catch(e){}
 const themesSave=()=>{try{localStorage.setItem('pmk-shop',themesOn?'1':'0')}catch(e){}};
 const themesSync=()=>{WALLS.length=WALLS_BASE;if(themesOn)SHOP.forEach(x=>WALLS.push(x.w))};
 themesSync();
@@ -1353,7 +1352,7 @@ await probe('база',API);
 for(let i=0;i<PATS.length;i++)await probe(`формат ${i}${i===goodPat?' ✓':''}`,PATS[i](st.day));
 devApi=out.join('\n');renderDev();
 }
-const LSK=['pmk3','pmk-set','pmk-sent','pmk-dev','pmk-upd-url','pmk-mute','pmk-shop','pmk-trailer','pmk-slav','pmk-mc-promo'];
+const LSK=['pmk3','pmk-set','pmk-sent','pmk-dev','pmk-upd-url','pmk-mute','pmk-shop','pmk-trailer','pmk-mc-trailer'];
 const lsGet=k=>{try{return localStorage.getItem(k)||''}catch(e){return ''}};
 function renderDev(){
 updPill();
@@ -1410,8 +1409,7 @@ h+=`<div class="dh">Журнал</div><div class="dgrid">${btn('logclear','Оч�
 h+=`<div class="dh">Интерфейс</div><div class="dgrid">${[0.9,1,1.1,1.25].map(z=>btn('zoom',Math.round(z*100)+'%',devZoom!==z,` data-z="${z}"`)).join('')}</div>
 <div class="dgrid" style="padding-top:0">${btn('dbg',devDbg?'Выключить рамки':'Рамки элементов',1)}${btn('fps',window.__fpsOn?'Скрыть FPS':'Показать FPS',window.__fpsOn?0:1)}${btn('hz','Замерить Гц',1)}${btn('splash','Заставка',1)}${btn('toast','Тест тоста',1)}${btn('err','Тест ошибки',1)}${btn('link','Копировать ссылку',1)}</div>`;
 h+=`<div class="dh">Трейлер обновления</div><div class="srow" style="display:block;border:0;padding-bottom:0"><small>Если включено — после заставки запуска показывается трейлер. Закрыть можно кнопкой «Закрыть».</small></div>
-<div class="dgrid">${btn('trtog',trOn()?'Показ при запуске: ВКЛ':'Показ при запуске: ВЫКЛ',trOn()?0:1)}${btn('trplay','Показать сейчас',1)}${btn('mcpromo','Окно «Майнкрафт»',1)}</div>
-<div class="dgrid">${btn('slavtog',SLAV?'Заставка: slavchik develop':'Заставка: Расписание ПМК',SLAV?0:1)}${btn('slavplay','Показать заставку',1)}</div>`;
+<div class="dgrid">${btn('trtog',trOn()?'Показ при запуске: ВКЛ':'Показ при запуске: ВЫКЛ',trOn()?0:1)}${btn('trplay','Показать сейчас',1)}${btn('mctrreset','Сбросить показ при запуске',1)}</div>`;
 h+=`<div class="dh">Консоль</div><div class="srow" style="display:block;border:0;padding-bottom:0"><small>JS выполняется в контексте приложения: st, days, set, nowD(), render()…</small>
 <textarea class="dtx" id="devJs" spellcheck="false" placeholder="например: days.size">${esc(devJsText)}</textarea>
 <div class="dgrid">${btn('js','Выполнить')}${btn('jsclr','Очистить',1)}</div></div>`;
@@ -1466,9 +1464,7 @@ simAt(date,12*60);renderDev();toast('Демо-день','Время — 12:00, �
 }
 if(a==='speed'){setNow(nowD().getTime());devSpeed=+el.dataset.v;render();renderDev()}
 if(a==='themes'){themesOn=!themesOn;themesSave();themesSync();if(!WALLS.find(x=>x.id===set.wall)){set.wall='auto';saveSet()}applyWall(set.wall);renderDev();toast(themesOn?'Тема выдана':'Тема забрана','');return}
-if(a==='slavtog'){try{localStorage.setItem('pmk-slav',SLAV?'0':'1')}catch(err){}toast('Заставка запуска','Сменится при следующем запуске приложения');SLAV=!SLAV;renderDev();return}
-if(a==='slavplay'){$('dev').classList.remove('show');if(!document.querySelector('.splash.slav')){const sp=document.createElement('div');sp.className='splash slav';document.body.appendChild(sp);runSplashSlav(sp)}return}
-if(a==='mcpromo'){$('dev').classList.remove('show');mcPromo(true);return}
+if(a==='mctrreset'){try{localStorage.removeItem(MC_TRAILER_KEY)}catch(err){}toast('Показ сброшен','Анимация откроется при следующем запуске');return}
 if(a==='goday'){go(el.dataset.d);renderDev()}
 if(a==='off'){devNet.offline=!devNet.offline;renderDev()}
 if(a==='fail'){devNet.fail=!devNet.fail;renderDev()}
@@ -1598,127 +1594,6 @@ sp.classList.add('out');
 setTimeout(()=>{sp.remove();setTimeout(()=>B.classList.remove('rev'),300)},480);
 },SP_FLY);
 }
-/* Заставка «slavchik develop» (как в трейлере «Майнкрафт»): после просмотра трейлера показывается при запуске вместо «Расписание ПМК». Флаг pmk-slav, звук media/slavchik.mp3 */
-const slavSplash=(function(){
-var s2,x2;
-var DPR=1,LT=[],SB=null,INK='#fdfaf9',EXT='#d9d5d7',BGR='#ef2632';
-function rng(s){return function(){s=(s*16807)%2147483647;return s/2147483647}}
-function ease(q){q=q<0?0:q>1?1:q;return q<.5?4*q*q*q:1-Math.pow(-2*q+2,3)/2}
-function clamp01(q){return q<0?0:q>1?1:q}
-/* скруглённый многоугольник: вершины [x,y,(r)]; r по умолчанию ro (выпуклые) / ri (вогнутые) */
-function rpoly(p,pts,ro,ri){
- var n=pts.length,ar=0,i;
- for(i=0;i<n;i++){var a=pts[i],b=pts[(i+1)%n];ar+=a[0]*b[1]-b[0]*a[1]}
- var sg=ar>0?1:-1;
- function md(a,b){return [(a[0]+b[0])/2,(a[1]+b[1])/2]}
- var m0=md(pts[n-1],pts[0]);p.moveTo(m0[0],m0[1]);
- for(i=0;i<n;i++){var c=pts[i],pv=pts[(i+n-1)%n],nx=pts[(i+1)%n],
-  cr=(c[0]-pv[0])*(nx[1]-c[1])-(c[1]-pv[1])*(nx[0]-c[0]),
-  r=c[2]!=null?c[2]:(cr*sg>0?ro:ri),m=md(c,nx);p.arcTo(c[0],c[1],m[0],m[1],r)}
- p.closePath()}
-/* глифы: высота 100, толщина штриха 26; почти квадратные, как в логотипе Mojang */
-var GP={
-S:{w:96,P:[{p:[[0,0,24],[96,0],[96,26],[26,26],[26,37],[96,37],[96,100,24],[0,100],[0,74],[70,74],[70,63],[0,63]]}]},
-L:{w:90,P:[{p:[[0,0],[26,0],[26,74],[90,74],[90,100],[0,100,12]]}]},
-A:{w:100,P:[{p:[[0,0,26],[100,0],[100,100],[74,100],[74,74],[26,74],[26,100],[0,100]]},{p:[[26,26],[74,26],[74,48],[26,48]],ro:3,ri:3}]},
-V:{w:100,P:[{p:[[0,0],[32,0],[50,50],[68,0],[100,0],[67,100],[33,100]]}]},
-C:{w:100,P:[{p:[[0,0,30],[100,0],[100,26],[26,26],[26,74],[100,74],[100,100],[0,100,30]]}]},
-H:{w:100,P:[{p:[[0,0],[26,0],[26,37],[74,37],[74,0],[100,0],[100,100],[74,100],[74,63],[26,63],[26,100],[0,100]]}]},
-I:{w:60,P:[{p:[[0,0],[60,0],[60,26],[43,26],[43,74],[60,74],[60,100],[0,100],[0,74],[17,74],[17,26],[0,26]]}]},
-K:{w:100,P:[{p:[[0,0],[26,0],[26,38],[66,0],[100,0],[53,50],[100,100],[66,100],[26,62],[26,100],[0,100]]}]}
-};
-var GC={};
-function gpath(ch){if(GC[ch])return GC[ch];var p=new Path2D();GP[ch].P.forEach(function(q){rpoly(p,q.p,q.ro!=null?q.ro:8,q.ri!=null?q.ri:2)});return GC[ch]=p}
-/* буквы подписи: геометрический жирный гротеск */
-var SG={
-D:{w:.82,s:function(p){p.moveTo(.1,.1);p.lineTo(.32,.1);p.arc(.32,.5,.4,-Math.PI/2,Math.PI/2);p.lineTo(.1,.9);p.closePath()}},
-E:{w:.62,s:function(p){p.moveTo(.62,.1);p.lineTo(.1,.1);p.lineTo(.1,.9);p.lineTo(.62,.9);p.moveTo(.1,.5);p.lineTo(.56,.5)}},
-V:{w:1,f:function(p){p.moveTo(0,0);p.lineTo(.25,0);p.lineTo(.5,.66);p.lineTo(.75,0);p.lineTo(1,0);p.lineTo(.62,1);p.lineTo(.38,1);p.closePath()}},
-L:{w:.55,s:function(p){p.moveTo(.1,0);p.lineTo(.1,.9);p.lineTo(.55,.9)}},
-O:{w:1,s:function(p){p.arc(.5,.5,.4,0,Math.PI*2)}},
-P:{w:.72,s:function(p){p.moveTo(.1,1);p.lineTo(.1,.1);p.lineTo(.42,.1);p.arc(.42,.3,.2,-Math.PI/2,Math.PI/2);p.lineTo(.1,.5)}}
-};
-/* ---- буква = жёсткий глиф; поворачивается на 90°/180° «волнами» и в конце встаёт на место ---- */
-function mkLetter(ch,i,n,x,y,u,r){
- var g=GP[ch],f=n>1?i/(n-1):0,a=0,st=[],j;
- function dl(){return r()<.4?1:r()<.5?-1:2}
- a=dl();if(r()<.35)a+=dl();if(a%4===0)a+=1;
- st.push(a);
- for(j=0;j<3;j++){a+=dl();st.push(a)}
- if(st[3]%4===0)st[3]+=1;
- st.push(4*Math.round(st[3]/4+.01));
- return {ch:ch,x:x,y:y,u:u,cx:g.w/2,st:st,
-  W:[[.24+.30*f,.27],[.58+.50*f,.18],[1.33+.27*f,.20],[2.12+.35*f,.26]]}}
-function pst(L,t){
- var s=0,e=0,W=L.W,j;
- for(j=0;j<4;j++){var a=W[j][0],d=W[j][1];if(t>=a+d)s=j+1;else{if(t>=a){s=j;e=ease((t-a)/d)}break}}
- if(s>=4)return {a:L.st[4],mv:0,ex:0,idn:1};
- return {a:L.st[s]+(L.st[s+1]-L.st[s])*e,mv:(e>0&&e<1)?1:0,ex:s===3?1-e:1,idn:0}}
-function drawL(c,L,t,al){
- var u=L.u,pp=gpath(L.ch),ps=pst(L,t),sh=u*100*.02*DPR;
- c.save();c.globalAlpha=al;
- c.shadowColor='rgba(110,6,28,.55)';c.shadowBlur=sh*1.6;c.shadowOffsetX=sh*.7;c.shadowOffsetY=sh*.9;if(al<.5)c.shadowColor='transparent';
- if(ps.idn){c.translate(L.x,L.y);c.scale(u,u);c.fillStyle=INK;c.fill(pp,'evenodd');c.restore();return}
- var ex=ps.ex*u*100*.035;
- c.translate(L.x+L.cx*u,L.y+50*u);
- /* объём: светло-серый торец, смещён вправо-вниз в экранных координатах */
- if(ex>.3){c.save();c.shadowColor='transparent';c.translate(ex*.8,ex);c.rotate(ps.a*Math.PI/2);c.scale(u,u);c.translate(-L.cx,-50);c.fillStyle=EXT;c.fill(pp,'evenodd');c.restore()}
- c.rotate(ps.a*Math.PI/2);c.scale(u,u);c.translate(-L.cx,-50);
- c.fillStyle=INK;c.fill(pp,'evenodd');c.restore()}
-var SGC={};function sgp(ch){if(SGC[ch])return SGC[ch];var g=SG[ch],p=new Path2D();(g.f||g.s)(p);return SGC[ch]=p}
-function drawSub(c,t){
- var al=clamp01((t-2.55)/.12);if(al<=0)return;
- var hs=SB.hs,x=SB.x,sh=hs*.06*DPR;
- c.save();c.globalAlpha=al;c.fillStyle=c.strokeStyle='#fdf7f7';
- c.shadowColor='rgba(110,6,28,.5)';c.shadowBlur=sh*1.6;c.shadowOffsetX=sh*.6;c.shadowOffsetY=sh*.8;
- SB.s.split('').forEach(function(ch){var g=SG[ch],p=sgp(ch);
-  c.save();c.translate(x,SB.y);c.scale(hs,hs);
-  if(g.f){c.fill(p)}else{c.lineWidth=.25;c.lineJoin='miter';c.miterLimit=4;c.lineCap='butt';c.stroke(p)}
-  c.restore();x+=(g.w+SB.tr)*hs});
- c.restore()}
-/* яркость кадра: из чёрного (по замеру референса) и обратно в чёрный */
-var FI=[[0,0],[.067,0],[.1,.084],[.133,.159],[.167,.28],[.2,.393],[.233,.473],[.267,.548],[.3,.619],[.333,.686],[.367,.736],[.4,.816],[.433,.883],[.467,.946],[.5,1]];
-function fade(t){
- if(t>=4.09)return Math.max(0,1-(t-4.09)/.25);
- if(t>=.5)return 1;if(t<=0)return 0;
- for(var i=1;i<FI.length;i++)if(t<=FI[i][0]){var a=FI[i-1],b=FI[i];return a[1]+(b[1]-a[1])*(t-a[0])/(b[0]-a[0])}
- return 1}
-function build(){
- var W=innerWidth,H=innerHeight;DPR=Math.min(devicePixelRatio||1,2);
- s2.width=Math.round(W*DPR);s2.height=Math.round(H*DPR);
- var word='SLAVCHIK',gp=14,tot=-gp;word.split('').forEach(function(ch){tot+=GP[ch].w+gp});
- var u=Math.min(H*.15/100,W*.94/tot),lw=tot*u,Hl=100*u,x=(W-lw)/2,y=H/2-.724*Hl,r=rng(7);
- LT=word.split('').map(function(ch,i){var L=mkLetter(ch,i,word.length,x,y,u,r);x+=(GP[ch].w+gp)*u;return L});
- var sub='DEVELOP',hs=.32*Hl,tr=.72,sw=-tr;sub.split('').forEach(function(ch){sw+=SG[ch].w+tr});
- SB={s:sub,hs:hs,tr:tr,x:(W-sw*hs)/2,y:y+Hl*1.215}}
-var SHUT=[[.034,.2],[.023,.28],[.012,.45],[0,1]];
-function splash(t){
- var c=x2,W=s2.width/DPR,H=s2.height/DPR;
- c.setTransform(DPR,0,0,DPR,0,0);c.globalAlpha=1;c.shadowColor='transparent';c.shadowBlur=0;c.shadowOffsetX=c.shadowOffsetY=0;
- c.fillStyle=BGR;c.fillRect(0,0,W,H);
- LT.forEach(function(L){
-  var mv=pst(L,t).mv;
-  if(mv)SHUT.forEach(function(s){drawL(c,L,t-s[0],s[1])});else drawL(c,L,t,1)});
- drawSub(c,t);
- var k=fade(t);if(k<1){c.fillStyle='rgba(0,0,0,'+(1-k)+')';c.fillRect(0,0,W,H)}}
-return function(cv){s2=cv;x2=cv.getContext('2d');build();return splash}
-})();
-function runSplashSlav(sp){
-const B=document.body;
-sp.className='splash slav';sp.innerHTML='<canvas></canvas>';
-const draw=slavSplash(sp.firstChild),t0=performance.now();
-if(!sndMuted){try{const a=new Audio('media/slavchik.mp3');a.volume=.9;const p=a.play();if(p&&p.catch)p.catch(()=>{})}catch(e){}}
-let done=false;
-const loop=()=>{
-const t=(performance.now()-t0)/1000;
-if(t<4.4){draw(t);requestAnimationFrame(loop);return}
-if(done)return;done=true;
-B.classList.remove('pre');B.classList.add('rev');B.classList.remove('hb');
-sp.classList.add('out');
-setTimeout(()=>{sp.remove();setTimeout(()=>B.classList.remove('rev'),300)},520);
-};
-loop();
-}
 /* заставка при включении темы «Майнкрафт»: экран «Generating world», тема применяется под ним */
 function themeSplashMC(done){
 const sp=document.createElement('div'),s=Math.max(2,Math.min(6,Math.round(Math.min(innerWidth/130,innerHeight/150))));
@@ -1742,7 +1617,6 @@ if(id==='minecraft'&&!document.documentElement.classList.contains('mc')&&!docume
 }
 function runSplash(sp){
 if(document.documentElement.classList.contains('mc'))return runSplashMC(sp);
-if(SLAV)return runSplashSlav(sp);
 const t=sp.querySelector('.sp-t'),B=document.body;
 // буквы: каждая проявляется волной слева направо (как в видео)
 const parts=[...t.childNodes].map(n=>({txt:n.textContent,k:n.nodeType===1}));
@@ -1775,13 +1649,12 @@ B.classList.remove('pre');B.classList.add('rev');const bb=sp.querySelector('.sp-
 },SP_FLY);
 setTimeout(()=>{B.classList.remove('hb');t.classList.add('fade');setTimeout(()=>{sp.remove();setTimeout(()=>B.classList.remove('rev'),300)},260)},SP_END);
 }
-let SLAV=false;try{SLAV=localStorage.getItem('pmk-slav')==='1'}catch(e){}
-const SPL_END=(SLAV&&!document.documentElement.classList.contains('mc'))?5000:SP_END;   // когда заставка закончилась
+try{localStorage.removeItem('pmk-slav')}catch(e){}
 runSplash($('splash'));
 /* ===== Трейлер обновления: включается в режиме разработчика, показывается после заставки запуска ===== */
 const TR_KEY='pmk-trailer';
 const trOn=()=>{try{return localStorage.getItem(TR_KEY)==='1'}catch(e){return false}};
-function trMsg(e){if(!e)return;if(e.data==='pmk-trailer-done'){try{localStorage.setItem('pmk-slav','1')}catch(err){}}if(e.data==='pmk-trailer-close')closeTrailer()}
+function trMsg(e){if(!e)return;if(e.data==='pmk-trailer-apply'){closeTrailer();if(themesOn&&SHOP.find(x=>x.id==='minecraft'))setWallFx('minecraft',()=>{})}if(e.data==='pmk-trailer-close')closeTrailer()}
 function closeTrailer(){const el=$('trailer');if(el)el.remove();window.removeEventListener('message',trMsg)}
 function openTrailer(){
 if($('trailer'))return;
@@ -1798,23 +1671,15 @@ el.appendChild(f);
 window.addEventListener('message',trMsg);
 }).catch(err=>{el.remove();toast('Не удалось открыть трейлер',String(err&&err.message||err))});
 }
-setTimeout(()=>{if(trOn())openTrailer()},SPL_END+600);   // после заставки запуска
-/* Окно «Майнкрафт» после заставки: один раз у каждого пользователя — при первом запуске после обновления (pmk-mc-promo хранит версию, на которой окно уже показали) */
-const MC_PROMO_KEY='pmk-mc-promo';
-function mcPromo(force){
-if($('mcpromo'))return;
-if(!force){
+setTimeout(()=>{if(trOn())openTrailer()},SP_END+600);   // после заставки запуска
+/* Анимация «Майнкрафт» сама открывается один раз у каждого пользователя — при первом запуске после обновления (после заставки). Отметка pmk-mc-trailer */
+const MC_TRAILER_KEY='pmk-mc-trailer';
+function mcTrailerOnce(){
 if(trOn()||$('trailer'))return;
-try{if(localStorage.getItem(MC_PROMO_KEY)===APP_VERSION)return;localStorage.setItem(MC_PROMO_KEY,APP_VERSION);if(localStorage.getItem(MC_PROMO_KEY)!==APP_VERSION)return}catch(e){return}
+try{if(localStorage.getItem(MC_TRAILER_KEY)==='1')return;localStorage.setItem(MC_TRAILER_KEY,'1');if(localStorage.getItem(MC_TRAILER_KEY)!=='1')return}catch(e){return}
+openTrailer();
 }
-const ov=document.createElement('div');ov.id='mcpromo';
-ov.style.cssText='position:fixed;inset:0;z-index:250;display:flex;align-items:center;justify-content:center;padding:24px;background:rgba(0,0,0,.55);opacity:0;transition:opacity .25s';
-ov.innerHTML=`<div role="dialog" aria-modal="true" style="width:100%;max-width:340px;box-sizing:border-box;padding:22px 20px 18px;border-radius:26px;background:var(--surface);color:var(--text);box-shadow:0 20px 60px rgba(0,0,0,.45);text-align:center"><div style="font-size:19px;font-weight:700;letter-spacing:-.02em">Тема «Майнкрафт»</div><div style="margin-top:8px;font-size:14px;line-height:1.4;color:var(--muted)">Посмотрите короткую анимацию про новую тему для приложения</div><div style="display:flex;flex-direction:column;gap:8px;margin-top:18px"><button data-m="go" style="padding:13px;border-radius:99px;font-size:15px;font-weight:700;background:var(--accent);color:var(--on)">Запустить</button><button data-m="no" style="padding:11px;border-radius:99px;font-size:14px;font-weight:600;color:var(--muted);background:rgba(var(--fg),.1)">Не сейчас</button></div></div>`;
-const close=go=>{ov.style.opacity='0';setTimeout(()=>{ov.remove();if(go)openTrailer()},250)};
-ov.onclick=e=>{const b=e.target.closest('[data-m]');if(b)close(b.dataset.m==='go');else if(e.target===ov)close(false)};
-document.body.appendChild(ov);void ov.offsetWidth;ov.style.opacity='1';
-}
-setTimeout(mcPromo,SPL_END+900);
+setTimeout(mcTrailerOnce,SP_END+700);
 (async function init(){
 if(!st.day)st.day=todayS();
 render();

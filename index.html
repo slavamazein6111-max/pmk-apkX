@@ -492,12 +492,12 @@ ensureEnt();renderDays();syncHash();
 document.querySelectorAll('#seg button').forEach(b=>b.classList.toggle('on',b.dataset.m===st.mode));
 $('ent').textContent=entName()||'Выберите';updStar();
 const day=days.get(st.day);
-if(loading&&!day){$('sub').textContent='';$('out').innerHTML='<div class="sk"></div><div class="sk"></div><div class="sk"></div>';return}
+if(loading&&!day){$('sub').textContent='';$('out').__rk=0;$('out').innerHTML='<div class="sk"></div><div class="sk"></div><div class="sk"></div>';return}
 const dlabel=fmt(st.day,{weekday:'long',day:'numeric',month:'long'});
 if(!day&&netOff){
 const nb=nearest(st.day);
 $('sub').textContent=dlabel;
-$('out').innerHTML=`<div class="empty"><div class="e">📴</div><p>Нет подключения к интернету</p>
+$('out').__rk=0;$('out').innerHTML=`<div class="empty"><div class="e">📴</div><p>Нет подключения к интернету</p>
 <small>Этот день не сохранён для офлайн-режима. Загрузить расписание заранее можно в настройках — кнопка 🔔 вверху.</small>
 ${nb?`<button class="btn" onclick="go('${nb}')">К ${fmt(nb,{day:'numeric',month:'long'})} (есть в памяти)</button>`:''}
 <button class="btn" style="margin-left:8px;background:var(--line);color:var(--text)" onclick="retry()">Повторить</button></div>`;
@@ -505,7 +505,7 @@ return;
 }
 if(!day){
 $('sub').textContent=dlabel;
-$('out').innerHTML=`<div class="empty"><div class="e">🗓</div><p>Расписание на эту дату пока не опубликовано</p>
+$('out').__rk=0;$('out').innerHTML=`<div class="empty"><div class="e">🗓</div><p>Расписание на эту дату пока не опубликовано</p>
 ${dateOk||dateFail<2?'':`<small>API отдаёт только опубликованный день${st.base?` (сейчас — ${fmt(st.base,{day:'numeric',month:'long'})})`:''}. Каждый загруженный день сохраняется в приложении, поэтому со временем здесь накопится история.</small>`}
 ${st.base&&st.base!==st.day?`<button class="btn" onclick="go('${st.base}')">К ${fmt(st.base,{day:'numeric',month:'long'})}</button>`:''}</div>`;
 return;
@@ -551,7 +551,8 @@ html+=`<div class="${cls}"><div class="t"><b>${r?fmtT(r[0]):''}</b><span>${r?fmt
 <div class="meta">${aud?`<span class="a">${esc(aud)}</span>`:''}${who?`<span>${esc(who)}</span>`:''}</div>
 ${l.k?'':halvesHtml(l,r,live,nowM)}${note?`<div class="note">${esc(note)}</div>`:''}${bar}</div></div></div>`;
 }
-$('out').innerHTML=html;
+{const o=$('out'),k=html.replace(/(<i data-a="\d+" data-b="\d+" style="width:)[\d.]+%/g,'$1');
+if(k!==o.__rk||!o.firstChild){o.innerHTML=html;o.__rk=k}}
 }
 const nearest=date=>{const ks=[...days.keys()].filter(k=>!days.get(k).demo);if(!ks.length)return '';const t=parse(date).getTime();return ks.sort((a,b)=>Math.abs(parse(a)-t)-Math.abs(parse(b)-t))[0]};
 const fmtAt=ts=>new Date(ts).toLocaleString('ru-RU',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
@@ -1708,7 +1709,7 @@ function smoothBars(){
 if(document.hidden)return;
 const els=document.querySelectorAll('#out .bar i[data-a]');if(!els.length)return;
 const x=nowF();let done=false;
-els.forEach(e=>{const a=+e.dataset.a,b=+e.dataset.b,w=barPct(a,b,x);e.style.width=w.toFixed(2)+'%';if(w>=100)done=true});
+els.forEach(e=>{const a=+e.dataset.a,b=+e.dataset.b,w=barPct(a,b,x),v=w.toFixed(2)+'%';if(e.__w!==v){e.__w=v;e.style.width=v}if(w>=100)done=true});
 if(done&&Date.now()-_sbT>1500){_sbT=Date.now();render()}}
 setInterval(smoothBars,250);
 setInterval(()=>{if(!document.hidden)render()},60000);
@@ -1799,20 +1800,6 @@ const L=b.offsetLeft-3;segRod.to(L,L+b.offsetWidth,instant);
 addEventListener('resize',()=>{moveInd(true);moveDay(true)});
 document.fonts&&document.fonts.ready.then(()=>moveInd(true));
 let sc=false,scT=0;
-/* тема «Майнкрафт»: шапка остаётся прозрачной, но контент под ней обрезается (не просвечивает при прокрутке) */
-(function(){
-const main=$('main'),hd=document.querySelector('header'),H=document.documentElement;let raf=0;
-function upd(){raf=0;
-if(true){if(main.classList.contains('mcclip')){main.classList.remove('mcclip');main.style.removeProperty('--cut')}return}
-if(!H.classList.contains('mc')){if(main.classList.contains('mcclip')){main.classList.remove('mcclip');main.style.removeProperty('--cut')}return}
-const cut=Math.max(0,hd.getBoundingClientRect().bottom-main.getBoundingClientRect().top);
-main.classList.add('mcclip');main.style.setProperty('--cut',cut.toFixed(1)+'px')}
-const req=()=>{if(!raf)raf=requestAnimationFrame(upd)};
-addEventListener('scroll',req,{passive:true});addEventListener('resize',req);
-new MutationObserver(req).observe(H,{attributes:true,attributeFilter:['class']});
-if(window.ResizeObserver)new ResizeObserver(req).observe(hd);
-req();
-})();
 const onScroll=()=>{
 const v=scrollY>6;if(v!==sc){sc=v;hdr.classList.toggle('sc',v)}
 };
@@ -1959,22 +1946,26 @@ anim(days_.scrollLeft);
 <script>
 (function(){
 /* День и ночь (только в теме «Майнкрафт»): цикл 4 мин — день ~2 мин, закат, ночь, рассвет */
-var P=240,t0=Date.now(),H=document.documentElement,B=document.body;
+var P=240,t0=Date.now(),H=document.documentElement,B=document.body,L={};
 function mk(c){var d=document.createElement('div');d.className='mcsky '+c;B.appendChild(d);return d}
 var ov=mk(''),st=mk('mcstars'),sn=mk('mcsun');
 var S=[[0,255,255,255,0],[100,255,200,120,0],[115,255,120,60,.26],[130,10,16,50,.72],[210,10,16,50,.72],[225,70,70,120,.3],[240,255,255,255,0]];
 function cur(){var s=((Date.now()-t0)/1000+(window.__mcSkip||0))%P;
 for(var i=1;i<S.length;i++)if(s<=S[i][0]){var a=S[i-1],b=S[i],k=(s-a[0])/(b[0]-a[0]);return{s:s,c:[1,2,3,4].map(function(j){return a[j]+(b[j]-a[j])*k})}}return{s:0,c:S[0].slice(1)}}
 window.__mcCur=cur;function tick(){if(!H.classList.contains('mc')||document.hidden)return;
-var r=cur(),c=r.c;ov.style.background='rgba('+Math.round(c[0])+','+Math.round(c[1])+','+Math.round(c[2])+','+c[3].toFixed(3)+')';H.style.setProperty('--mcov',ov.style.background);
-st.style.opacity=Math.max(0,Math.min(1,(c[3]-.3)/.4)).toFixed(2);H.style.setProperty('--mcst',st.style.opacity);
+var r=cur(),c=r.c,bg='rgba('+Math.round(c[0])+','+Math.round(c[1])+','+Math.round(c[2])+','+c[3].toFixed(2)+')';
+if(bg!==L.bg){L.bg=bg;ov.style.background=bg;H.style.setProperty('--mcov',bg)}
+var so=Math.max(0,Math.min(1,(c[3]-.3)/.4)).toFixed(2);
+if(so!==L.so){L.so=so;st.style.opacity=so;H.style.setProperty('--mcst',so)}
 var day=r.s<125,u=day?r.s/125:(r.s-115)/125;u=Math.max(0,Math.min(1,u));
-sn.style.opacity=(u<.04||u>.96)?0:.95;
-sn.style.left=(u*100-6)+'%';sn.style.top=(58-Math.sin(u*Math.PI)*32)+'%';
-sn.style.background=day?'#fff3a0':'#dfe6ee';
-sn.style.boxShadow=day?'inset -6px -6px 0 #f5c542,0 0 0 4px rgba(255,240,150,.35)':'inset -8px -8px 0 #aab4c2';
+var op=(u<.04||u>.96)?0:.95,lf=(u*100-6).toFixed(1)+'%',tp=(58-Math.sin(u*Math.PI)*32).toFixed(1)+'%';
+if(op!==L.op){L.op=op;sn.style.opacity=op}
+if(lf!==L.lf){L.lf=lf;sn.style.left=lf}
+if(tp!==L.tp){L.tp=tp;sn.style.top=tp}
+if(day!==L.day){L.day=day;sn.style.background=day?'#fff3a0':'#dfe6ee';
+sn.style.boxShadow=day?'inset -6px -6px 0 #f5c542,0 0 0 4px rgba(255,240,150,.35)':'inset -8px -8px 0 #aab4c2'}
 }
-setInterval(tick,500);tick();
+setInterval(tick,1000);tick();
 })();
 </script>
 <script>

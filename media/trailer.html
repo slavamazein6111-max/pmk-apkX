@@ -112,6 +112,7 @@ html,body{height:100%;margin:0;background:#000;color:#fff;overflow:hidden;font-f
 <div id="end"></div>
 </div>
 <div id="go"><div>МАЙНКРАФТ · ТРЕЙЛЕР</div><b>▶ ЗАПУСТИТЬ СО ЗВУКОМ</b><small>коснись экрана</small>
+<button id="apply" type="button" style="display:none;font:inherit;font-size:.8em;color:#fff;background:#2f6fd6;border:3px solid #fff;padding:.6em 1.2em;margin-top:.8em;cursor:pointer;box-shadow:inset 3px 3px 0 #5b97f0,inset -3px -3px 0 #1a3f85">✔ ПРИМЕНИТЬ ТЕМУ</button>
 <button id="rec" type="button" style="font:inherit;font-size:.7em;color:#fff;background:#3a7d1e;border:3px solid #fff;padding:.6em 1.2em;margin-top:.6em;cursor:pointer;box-shadow:inset 3px 3px 0 #5cb335,inset -3px -3px 0 #1d4a0c">✕ ЗАКРЫТЬ</button>
 <small id="recmsg" style="max-width:80vw"></small></div>
 <button id="x" type="button">✕</button>
@@ -574,15 +575,14 @@ function run(){go.style.display='none';cur='';curG=-9;end.classList.remove('on')
  try{G.forEach(function(q){q.visible=true});C.position.set(0,6,30);C.lookAt(0,5,-20);R.shadowMap.needsUpdate=true;mcRender();bakeShadows();calibrate();G.forEach(function(q){q.visible=false})}catch(e){}
  au.currentTime=0;var p=au.play();if(p&&p.catch)p.catch(function(){go.style.display='flex'})}
 go.addEventListener('click',run);
-au.addEventListener('ended',function(){go.querySelector('b').textContent='↻ ПОВТОРИТЬ';go.style.display='flex'});
+au.addEventListener('ended',function(){go.querySelector('b').textContent='↻ ПОВТОРИТЬ';go.style.display='flex';var ap=document.getElementById('apply');if(ap)ap.style.display='block'});
+go.addEventListener('click',function(){var ap=document.getElementById('apply');if(ap)ap.style.display='none'});
 frame();
 })();
 </script><script>
 (function(){
-var au0=document.getElementById('au');
-function done(){try{parent.postMessage('pmk-trailer-done','*')}catch(e){}}
-if(au0)au0.addEventListener('ended',done);
-function close(){if(au0&&au0.currentTime>=40)done();try{parent.postMessage('pmk-trailer-close','*')}catch(e){}}
+function close(){try{parent.postMessage('pmk-trailer-close','*')}catch(e){}}
+var apb=document.getElementById('apply');if(apb)apb.addEventListener('click',function(e){e.stopPropagation();try{parent.postMessage('pmk-trailer-apply','*')}catch(err){}});
 ['rec','x'].forEach(function(id){var b=document.getElementById(id);if(b)b.addEventListener('click',function(e){e.stopPropagation();close()})});
 var m=document.getElementById('recmsg');
 window.addEventListener('load',function(){setTimeout(function(){if(!window.THREE&&m)m.textContent='Для трейлера нужен интернет (грузится 3D-графика). Закрой и попробуй позже.'},400)});

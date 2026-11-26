@@ -222,6 +222,8 @@ jobs:
                   registerPlugin(ApkUpdatePlugin.class);
                   registerPlugin(WidgetPlugin.class);
                   super.onCreate(savedInstanceState);
+                  // игнорируем системный размер шрифта, чтобы текст не раздувался на других телефонах
+                  getBridge().getWebView().getSettings().setTextZoom(100);
               }
           }
           EOF4

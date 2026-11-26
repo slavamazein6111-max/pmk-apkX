@@ -25,6 +25,33 @@ document.open();document.write(h);document.close();
 }catch(e){}})();
 </script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<script>
+/* AUTO-SCALE: интерфейс рисуется под ширину BASE css-px и пропорционально
+   растягивается/сжимается под реальную ширину экрана, чтобы у всех выглядел одинаково.
+   Свой телефон = эталон: если у тебя всё чётко, поставь BASE = ширина твоего экрана (в консоли: innerWidth). */
+(function(){
+  var BASE=390, MIN=.8, MAX=1.33, TABLET=700, root=document.documentElement;
+  function fit(){
+    var w=window.innerWidth||root.clientWidth||BASE, s;
+    if(w>=TABLET) s=1;                              /* планшет/десктоп: обычная колонка по центру */
+    else s=Math.max(MIN,Math.min(MAX,w/BASE));
+    s=Math.round(s*100)/100;
+    if(Math.abs(s-1)<.02) s=1;
+    root.style.zoom=s===1?'':s;
+    root.style.setProperty('--z',s);
+  }
+  fit();
+  addEventListener('resize',fit);
+  addEventListener('orientationchange',function(){setTimeout(fit,150)});
+})();
+</script>
+<style>
+/* vh внутри zoom тоже умножается — компенсируем, чтобы шторки и фон не вылезали за экран */
+html{--z:1}
+body{min-height:calc(100vh / var(--z))}
+.sheet{max-height:calc(82vh / var(--z))}
+@media(min-width:700px){.sheet{max-height:calc(70vh / var(--z))}}
+</style>
 <meta name="color-scheme" content="light dark">
 <meta name="theme-color" content="#4f46e5">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -340,7 +367,7 @@ let set={on:false,main:'',mainName:'',lead:5,eve:true,eveT:'20:00',morn:true,mor
 try{set={...set,...JSON.parse(localStorage.getItem('pmk-set')||'{}')}}catch(e){}
 set.pred=false;
 document.addEventListener('visibilitychange',()=>document.documentElement.classList.toggle('hid',document.hidden));
-const APP_VERSION='0.5.2';const APP_CHANNEL='release';const APP_OTA='0';const BETA_LABEL=APP_CHANNEL==='test'?'test':'beta';document.querySelectorAll('.beta').forEach(e=>{e.textContent=BETA_LABEL});const UI_VERSION='0.5.9';
+const APP_VERSION='0.5.2';const APP_CHANNEL='release';const APP_OTA='0';const BETA_LABEL=APP_CHANNEL==='test'?'test':'beta';document.querySelectorAll('.beta').forEach(e=>{e.textContent=BETA_LABEL});const UI_VERSION='0.5.10';
 const TG_URL='https://t.me/slvdevvv';
 const hx=h=>{h=h.replace('#','');if(h.length==3)h=[...h].map(c=>c+c).join('');return[0,2,4].map(i=>parseInt(h.slice(i,i+2),16))};
 const mix=(a,b,t)=>{const A=hx(a),B=hx(b);return'#'+A.map((v,i)=>Math.round(v+(B[i]-v)*t).toString(16).padStart(2,'0')).join('')};
